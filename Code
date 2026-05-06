@@ -1,0 +1,119 @@
+# FoodVanced: Advanced Food Ordering System
+# By Quiel, Phil, Yumi, Jacob, and Karl
+# 8-ROSAL
+
+# MENU DATABASE
+menu_database = {
+    "R1": ("Rice", 10),
+    "C1": ("Chicken", 50),
+    "S1": ("Spaghetti", 45),
+    "D1": ("Drink", 20)
+}
+
+# BUNDLES
+bundles = [
+    (("R1", "C1"), 55),
+    (("R1", "S1"), 50)
+]
+
+order_list = []
+subtotal = 0
+
+print("=== FoodVanced Ordering System ===")
+
+# ORDERING LOOP
+while True:
+    item_code = input("Enter item code (or 'done' to finish): ").upper()
+
+    if item_code == "DONE":
+        break
+
+    if item_code in menu_database:
+        quantity = int(input("Enter quantity: "))
+        item_name, price = menu_database[item_code]
+
+        item_total = price * quantity
+        order_list.append({
+            "code": item_code,
+            "name": item_name,
+            "quantity": quantity,
+            "total": item_total
+        })
+
+        subtotal += item_total
+        print(f"Added: {item_name} x{quantity} = {item_total}")
+
+    else:
+        print("Invalid code. Try again.")
+
+# APPLY BUNDLES
+print("\nChecking bundles...")
+for bundle_items, bundle_price in bundles:
+    codes_in_order = [item["code"] for item in order_list]
+
+    if all(code in codes_in_order for code in bundle_items):
+        original_price = sum(menu_database[code][1] for code in bundle_items)
+        savings = original_price - bundle_price
+
+        subtotal -= savings
+        print(f"Bundle applied for {bundle_items}! Saved {savings}")
+
+# CUSTOMER TYPE
+print("\nCustomer Type:")
+print("1 - Regular")
+print("2 - Senior Citizen")
+print("3 - PWD")
+print("4 - Student")
+
+customer_type = input("Select: ")
+
+discount = 0
+
+if customer_type in ["2", "3"]:
+    vat = subtotal * 0.12
+    subtotal -= vat
+
+    discount = subtotal * 0.20
+    subtotal -= discount
+
+# MEAL SUGGESTIONS
+answer = input("\nDo you want meal suggestions? (yes/no): ").lower()
+
+if answer == "yes":
+    budget = float(input("Enter budget: "))
+    print("\nPossible combinations within budget:")
+
+    for code1 in menu_database:
+        for code2 in menu_database:
+            total_price = menu_database[code1][1] + menu_database[code2][1]
+
+            if total_price <= budget:
+                name1 = menu_database[code1][0]
+                name2 = menu_database[code2][0]
+                print(f"{name1} + {name2} = {total_price}")
+
+# FINAL TOTAL
+total = subtotal
+print(f"\nCurrent Total: {total:.2f}")
+
+# PAYMENT
+while True:
+    cash = float(input("Enter cash payment: "))
+
+    if cash >= total:
+        change = cash - total
+        break
+    else:
+        print("Insufficient payment. Try again.")
+
+# RECEIPT
+print("\n----- RECEIPT -----")
+for item in order_list:
+    print(f"{item['name']} x{item['quantity']} = {item['total']}")
+
+print(f"Subtotal: {subtotal:.2f}")
+print(f"Discount: {discount:.2f}")
+print(f"Total: {total:.2f}")
+print(f"Cash: {cash:.2f}")
+print(f"Change: {change:.2f}")
+print("Thank you!")
